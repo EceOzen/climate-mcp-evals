@@ -18,7 +18,7 @@ async def geocode_city(name: str, country_code: str | None = None) -> dict:
         url = "https://geocoding-api.open-meteo.com/v1/search"
         params = {"name": name, "count": 1}
         if country_code:
-            params["country_code"] = country_code
+            params["countryCode"] = country_code.upper()
 
         response = await client.get(url, params=params, timeout=10)
         response.raise_for_status()
@@ -26,9 +26,11 @@ async def geocode_city(name: str, country_code: str | None = None) -> dict:
         results = data.get("results", [])
 
         if not results:
-            return {"latitude": None, "longitude": None, "name": name}
+             where = f" in country '{country_code}'" if country_code else ""
+             return {"error": f"No place found for '{name}'{where}."}
 
         location = results[0]
+
         return {
             "latitude": location.get("latitude"),
             "longitude": location.get("longitude"),
