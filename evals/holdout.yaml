@@ -1,0 +1,39 @@
+# Held-out eval cases. Do not look at these while tuning tool descriptions.
+# Run once at the end to check that the improvements generalise.
+# "Today" is fixed to 2026-11-26 (Thursday) in the system prompt.
+
+- id: clear-05
+  category: clear
+  question: "Give me a 10-day forecast for 40.19, 29.06."
+  expected_tool: get_forecast
+  expected_args: {days: 10}
+
+- id: boundary-05
+  category: boundary
+  question: "What was the temperature at 39.93, 32.86 on 20 November?"
+  expected_tool: get_historical
+  expected_args: {start_date: "2026-11-20", end_date: "2026-11-20"}
+
+- id: chain-04
+  category: chain
+  question: "How much rain fell in Trabzon in October 2026?"
+  expected_tool: geocode_city
+  expected_args: {name: "Trabzon"}
+
+- id: args-03
+  category: arguments
+  question: "Daily max temperature at 41.01, 28.95 for the whole of 2025."
+  expected_tool: get_historical
+  expected_args: {start_date: "2025-01-01", end_date: "2025-12-31", variables: ["temperature_max"]}
+
+- id: parallel-02
+  category: parallel
+  question: "Which will be warmer tomorrow, Istanbul or Ankara?"
+  expected_calls:
+    - {tool: geocode_city, args: {name: "Istanbul"}}
+    - {tool: geocode_city, args: {name: "Ankara"}}
+
+- id: notool-02
+  category: no_tool
+  question: "Hi! What can you help me with?"
+  expected_tool: null

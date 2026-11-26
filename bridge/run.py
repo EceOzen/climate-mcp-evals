@@ -80,4 +80,5 @@ async def main() -> None:
 
         print("Stopped: reached MAX_TURNS without a final answer.")
         
-anyio.run(main)
+if __name__ == "__main__":
+    anyio.run(main)

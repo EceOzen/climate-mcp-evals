@@ -1,0 +1,151 @@
+# Eval cases. "Today" is fixed to 2026-11-26 (Thursday) in the system prompt.
+# expected_tool: the first tool the model should call (null = answer without a tool).
+# expected_calls: for parallel cases, all tool calls expected in the first turn, any order.
+# expected_args lists only the arguments the question fully determines.
+
+# --- clear: one obvious tool ---
+- id: clear-01
+  category: clear
+  question: "What's the forecast for the next 3 days at 41.01, 28.95?"
+  expected_tool: get_forecast
+  expected_args: {latitude: 41.01, longitude: 28.95, days: 3}
+
+- id: clear-02
+  category: clear
+  question: "How much did it rain at 41.01, 28.95 between 1 and 7 November 2026?"
+  expected_tool: get_historical
+  expected_args: {latitude: 41.01, longitude: 28.95, start_date: "2026-11-01", end_date: "2026-11-07"}
+
+- id: clear-03
+  category: clear
+  question: "How windy will it be at 38.42, 27.14 over the next week?"
+  expected_tool: get_forecast
+  expected_args: {latitude: 38.42, longitude: 27.14}
+
+- id: clear-04
+  category: clear
+  question: "What were the daily maximum temperatures at 36.89, 30.71 in July 2020?"
+  expected_tool: get_historical
+  expected_args: {start_date: "2020-07-01", end_date: "2020-07-31"}
+
+- id: clear-05
+  category: clear
+  question: "Give me a 10-day forecast for 40.19, 29.06."
+  expected_tool: get_forecast
+  expected_args: {days: 10}
+
+- id: clear-06
+  category: clear
+  question: "What was the weather like at 41.01, 28.95 on 1 January 2000?"
+  expected_tool: get_historical
+  expected_args: {start_date: "2000-01-01", end_date: "2000-01-01"}
+
+# --- boundary: forecast vs history ---
+- id: boundary-01
+  category: boundary
+  question: "What was the high temperature at 39.93, 32.86 yesterday?"
+  expected_tool: get_historical
+  expected_args: {start_date: "2026-11-25", end_date: "2026-11-25"}
+
+- id: boundary-02
+  category: boundary
+  question: "Is it going to be cold today at 39.93, 32.86?"
+  expected_tool: get_forecast
+
+- id: boundary-03
+  category: boundary
+  question: "Will it rain tomorrow at 39.93, 32.86?"
+  expected_tool: get_forecast
+
+- id: boundary-04
+  category: boundary
+  question: "How cold was it last week at 39.93, 32.86?"
+  expected_tool: get_historical
+
+- id: boundary-05
+  category: boundary
+  question: "What was the temperature at 39.93, 32.86 on 20 November?"
+  expected_tool: get_historical
+  expected_args: {start_date: "2026-11-20", end_date: "2026-11-20"}
+
+# --- chain: place name, geocode first ---
+- id: chain-01
+  category: chain
+  question: "Will it rain in Ankara tomorrow?"
+  expected_tool: geocode_city
+  expected_args: {name: "Ankara"}
+
+- id: chain-02
+  category: chain
+  question: "Weather in Paris, Texas this weekend?"
+  expected_tool: geocode_city
+  expected_args: {name: "Paris", country_code: "US"}
+
+- id: chain-03
+  category: chain
+  question: "Yarın İzmir'de hava nasıl olacak?"
+  expected_tool: geocode_city
+  expected_args: {name: "İzmir"}
+
+- id: chain-04
+  category: chain
+  question: "How much rain fell in Trabzon in October 2026?"
+  expected_tool: geocode_city
+  expected_args: {name: "Trabzon"}
+
+# --- arguments: correct tool is easy, arguments are not ---
+- id: args-01
+  category: arguments
+  question: "Only the rainfall, please: daily precipitation at 41.01, 28.95 for January 2025."
+  expected_tool: get_historical
+  expected_args: {start_date: "2025-01-01", end_date: "2025-01-31", variables: ["precipitation"]}
+
+- id: args-02
+  category: arguments
+  question: "Just the minimum temperatures for the next 5 days at 39.93, 32.86."
+  expected_tool: get_forecast
+  expected_args: {days: 5, variables: ["temperature_min"]}
+
+- id: args-03
+  category: arguments
+  question: "Daily max temperature at 41.01, 28.95 for the whole of 2025."
+  expected_tool: get_historical
+  expected_args: {start_date: "2025-01-01", end_date: "2025-12-31", variables: ["temperature_max"]}
+
+# --- parallel: several calls in the first turn ---
+- id: parallel-01
+  category: parallel
+  question: "Compare last week's rainfall at 41.01, 28.95 and 39.93, 32.86."
+  expected_calls:
+    - {tool: get_historical, args: {latitude: 41.01, longitude: 28.95}}
+    - {tool: get_historical, args: {latitude: 39.93, longitude: 32.86}}
+
+- id: parallel-02
+  category: parallel
+  question: "Which will be warmer tomorrow, Istanbul or Ankara?"
+  expected_calls:
+    - {tool: geocode_city, args: {name: "Istanbul"}}
+    - {tool: geocode_city, args: {name: "Ankara"}}
+
+- id: parallel-03
+  category: parallel
+  question: "At 39.93, 32.86, how does yesterday's high compare with today's forecast high?"
+  expected_calls:
+    - {tool: get_historical, args: {start_date: "2026-11-25", end_date: "2026-11-25"}}
+    - {tool: get_forecast, args: {}}
+
+# --- no_tool: should answer directly ---
+- id: notool-01
+  category: no_tool
+  question: "What does 'feels like temperature' mean?"
+  expected_tool: null
+
+- id: notool-02
+  category: no_tool
+  question: "Hi! What can you help me with?"
+  expected_tool: null
+
+- id: notool-03
+  category: no_tool
+  question: "Why is ERA5 called a reanalysis?"
+  expected_tool: null
