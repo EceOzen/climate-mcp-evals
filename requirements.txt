@@ -3,3 +3,4 @@ cohere
 httpx
 pyyaml
 python-dotenv
+streamlit
