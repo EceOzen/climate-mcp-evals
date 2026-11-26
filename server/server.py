@@ -37,11 +37,13 @@ mcp = MCPServer("climate-mcp")
 
 @mcp.tool()
 async def geocode_city(name: str, country_code: str | None = None) -> dict:
-    """Geocode a city.
-
+    """Convert a place name into latitude and longitude. Call this before
+    get_forecast or get_historical when the user names a place instead of
+    giving coordinates.
+    
     Args:
-        name: Name of the city
-        country_code: ISO country code
+    name: Place name, e.g. "Ankara"
+    country_code: ISO 3166-1 alpha-2 country code to filter results, e.g. "TR". Optional.
     """
 
     async with httpx.AsyncClient() as client:
