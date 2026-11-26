@@ -31,6 +31,9 @@ The forecast shows 0 mm of precipitation for that day, with a high of 8.5°C and
 
 The model does not know Ankara's coordinates, so it geocodes first, then calls the forecast tool with the result, then answers from the returned data.
 
+<img width="1465" height="805" alt="image" src="https://github.com/user-attachments/assets/881dd90e-8a16-4cad-a816-79ff83fb6eee" />
+
+
 ## Status
 
 | Part | State |
